@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WalletGuard — Solana safety checker</title>
+<style>
+  :root { color-scheme: dark; }
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }
+  body { background: #0b0e14; color: #e6e9f0; min-height: 100vh; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 64px; }
+  header { display: flex; align-items: center; gap: 12px; padding: 16px 0 32px; }
+  .logo { width: 40px; height: 40px; border-radius: 12px;
+    background: linear-gradient(135deg, #14f195, #9945ff);
+    display: grid; place-items: center; font-size: 20px; }
+  h1 { font-size: 20px; }
+  h1 small { display: block; font-size: 12px; font-weight: 400; color: #8b93a7; }
+  .card { background: #12161f; border: 1px solid #1e2430; border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: linear-gradient(135deg, #14f195, #9945ff); color: #06111b; border: 0;
+    border-radius: 10px; padding: 12px 20px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; }
+  .btn:disabled { opacity: .4; cursor: default; }
+  .wallet-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px;
+    font-size: 14px; color: #8b93a7; }
+  .wallet-row b { color: #14f195; }
+  label { display: block; font-size: 13px; color: #8b93a7; margin: 0 0 8px; }
+  input[type=text], input[type=url] { width: 100%; background: #0b0e14; color: #e6e9f0;
+    border: 1px solid #2a3140; border-radius: 10px; padding: 12px 14px; font-size: 15px; margin-bottom: 12px; }
+  .result { margin-top: 12px; border-radius: 10px; padding: 14px; font-size: 14px; display: none; }
+  .result.show { display: block; }
+  .result.wait { background: #1a1f2b; color: #a9b2c6; }
+  .result.ok  { background: #10241a; color: #7ee2b8; border: 1px solid #1d5c3f; }
+  .result.bad { background: #2b1216; color: #ff8a99; border: 1px solid #6b2430; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .tab { flex: 1; text-align: center; padding: 10px; border-radius: 10px; background: #0b0e14;
+    border: 1px solid #1e2430; color: #8b93a7; font-size: 14px; cursor: pointer; }
+  .tab.active { background: #12161f; color: #e6e9f0; border-color: #2a3140; }
+  .about { font-size: 13px; color: #8b93a7; line-height: 1.6; }
+  .about h3 { color: #e6e9f0; font-size: 14px; margin-bottom: 8px; }
+  .chip { display: inline-block; background: #0b0e14; border: 1px solid #1e2430; border-radius: 99px;
+    padding: 4px 10px; font-size: 11px; color: #8b93a7; margin: 2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">&#128737;</div>
+    <h1>WalletGuard <small>Solana safety checker &middot; building on Solana</small></h1>
+  </header>
+
+  <div class="card">
+    <button class="btn" id="connect">Connect Phantom</button>
+    <div class="wallet-row" id="walletRow" hidden>
+      <span>Connected</span>
+      <b id="walletAddr">--</b>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="address">Address</div>
+    <div class="tab" data-tab="url">URL</div>
+    <div class="tab" data-tab="contract">Contract</div>
+  </div>
+
+  <div class="card" id="panel-address">
+    <label>Solana address to check</label>
+    <input type="text" id="addrInput" placeholder="Paste a wallet, token or contract address">
+    <button class="btn" id="check.Addr" disabled>Check address</button>
+    <div class="result wait" id="res.Addr"></div>
+  </div>
+
+  <div class="card" id="panel-url" hidden>
+    <label>URL to check</label>
+    <input type="url" id="urlInput" placeholder="https://example.com/link-from-somewhere">
+    <button class="btn" id="check.Url" disabled>Check URL</button>
+    <div class="result wait" id="res.Url"></div>
+  </div>
+
+  <div class="card" id="panel-contract" hidden>
+    <label>Program / contract address to check</label>
+    <input type="text" id="progInput" placeholder="Paste a program address">
+    <button class="btn" id="check.Contract" disabled>Check contract</button>
+    <div class="result wait" id="res.Contract"></div>
+  </div>
+
+  <div class="card about">
+    <h3>What this is</h3>
+    <p>
+      WalletGuard is a small Solana dApp that gives everyday users one place to ask a simple question:
+      <b>is this thing safe?</b> &mdash; a wallet address, a link someone sent them, or a program they
+      are about to interact with. Connect your Phantom wallet, paste anything, get a plain-language answer.
+    </p>
+    <div style="margin-top:12px">
+      <span class="chip">Address checks &mdash; DD.xyz Threat Risks API</span>
+      <span class="chip">URL checks &mdash; DD.xyz URL Risk API</span>
+      <span class="chip">Contract checks &mdash; DD.xyz Contract Risk API</span>
+    </div>
+    <p style="margin-top:12px">
+      Risk scoring is provided by the DD.xyz (Webacy) Risk Engine and plugs into the three marked slots.
+      This build ships the finished interface and integration contract; live scoring connects as soon
+      as API credentials are issued. Everything runs client-side &mdash; no accounts, no tracking.
+    </p>
+  </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
